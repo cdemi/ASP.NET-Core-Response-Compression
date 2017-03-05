@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace ASP.NET_Core_Response_Compression
 {
@@ -27,6 +29,13 @@ namespace ASP.NET_Core_Response_Compression
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Configure Response Compression
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+            });
+
             // Add framework services.
             services.AddMvc();
         }
@@ -50,6 +59,7 @@ namespace ASP.NET_Core_Response_Compression
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseResponseCompression();
             app.UseStaticFiles();
 
             app.UseMvc(routes =>
